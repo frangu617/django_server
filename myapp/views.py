@@ -24,7 +24,7 @@ class DataView(View):
             {
                 "id": item.id,
                 "content": item.content,
-                "timestamp": convert_to_timezone(item.timestamp, timezone).strftime("You posted this data on %Y-%m-%d at %H:%M:%S %Z")
+                "timestamp": convert_to_timezone(item.timestamp, timezone).strftime("You posted this data on %Y-%m-%d at %H:%M:%S")
             } for item in items
         ]
         return JsonResponse(data, safe=False)
@@ -32,14 +32,14 @@ class DataView(View):
     def post(self, request):
         received_data = json.loads(request.body).get('content', '')
         new_item = DataItem.objects.create(content=received_data)
-        timezone = request.GET.get('timezone', 'PDT')
+        timezone = request.GET.get('timezone', 'UTC')
         converted_timestamp = convert_to_timezone(new_item.timestamp, timezone)
         return JsonResponse({
             "message": "Data received!",
             "data": {
                 "id": new_item.id,
                 "content": new_item.content,
-                "timestamp": converted_timestamp.strftime("You posted this data on %Y-%m-%d at %H:%M:%S %Z")
+                "timestamp": converted_timestamp.strftime("You posted this data on %Y-%m-%d at %H:%M:%S")
             }
         })
 
@@ -53,12 +53,12 @@ class DataView(View):
         item.timestamp = datetime.now()
         item.save()
 
-        timezone = request.GET.get('timezone', 'PDT')
+        timezone = request.GET.get('timezone', 'UTC')
         converted_timestamp = convert_to_timezone(item.timestamp, timezone)
         return JsonResponse({"message": "Data updated!", "data": {
             "id": item.id,
             "content": item.content,
-            "timestamp": converted_timestamp.strftime("You updated this data on %Y-%m-%d at %H:%M:%S %Z")
+            "timestamp": converted_timestamp.strftime("You updated this data on %Y-%m-%d at %H:%M:%S")
         }})
 
     def delete(self, request, data_id):
